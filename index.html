@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធពិនិត្យលទ្ធផលសិក្សា - វិទ្យាល័យហ៊ុនសែនកំពង់ត្រឡាច</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .print-container { width: 100%; box-shadow: none !important; border: none !important; padding: 0 !important; }
+            .bg-blue-600 { background-color: #2563eb !important; -webkit-print-color-adjust: exact; }
+            .text-white { color: white !important; -webkit-print-color-adjust: exact; }
+            .bar-fill { -webkit-print-color-adjust: exact; }
+        }
+        .chart-grid-line {
+            border-bottom: 1px dashed #ccc;
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+        .bar-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            padding-top: 20px;
+        }
+        .rotated-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-2 md:p-6">
+
+    <div id="app" class="max-w-4xl mx-auto print-container bg-white p-4 md:p-8 rounded-xl shadow-sm">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-xl font-bold text-blue-900">ព្រះរាជាណាចក្រកម្ពុជា</h1>
+            <h2 class="text-lg font-bold text-blue-900">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
+            <div class="flex justify-center my-1">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Royal_arms_of_Cambodia.svg/150px-Royal_arms_of_Cambodia.svg.png" alt="Royal Arms" class="h-16">
+            </div>
+            <div class="mt-2 text-blue-800 font-semibold text-sm">
+                <p>មន្ទីរអប់រំ យុវជន និងកីឡា ខេត្តកំពង់ឆ្នាំង</p>
+                <p>ការិយាល័យអប់រំ យុវជន និងកីឡា ស្រុកកំពង់ត្រឡាច</p>
+                <p class="font-bold">វិទ្យាល័យហ៊ុនសែនកំពង់ត្រឡាច</p>
+            </div>
+            <h2 class="mt-4 text-xl font-bold text-red-600 underline decoration-double">តារាងលទ្ធផលសិក្សារបស់សិស្សប្រចាំខែ <span id="headerMonth">...</span></h2>
+        </div>
+
+        <!-- Search Box -->
+        <div class="max-w-2xl mx-auto mb-8 no-print bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">ជ្រើសរើសខែ៖</label>
+                    <select id="monthSelect" class="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold outline-none">
+                        <option value="មករា">មករា</option><option value="កុម្ភៈ">កុម្ភៈ</option><option value="មីនា">មីនា</option>
+                        <option value="មេសា">មេសា</option><option value="ឧសភា">ឧសភា</option><option value="មិថុនា">មិថុនា</option>
+                        <option value="កក្កដា">កក្កដា</option><option value="សីហា">សីហា</option><option value="កញ្ញា">កញ្ញា</option>
+                        <option value="តុលា">តុលា</option><option value="វិច្ឆិកា">វិច្ឆិកា</option><option value="ធ្នូ">ធ្នូ</option>
+                        <option value="ឆមាសទី១">ឆមាសទី១</option><option value="ឆមាសទី២">ឆមាសទី២</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">អត្តលេខ ឬឈ្មោះសិស្ស៖</label>
+                    <input type="text" id="searchInput" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500" placeholder="បញ្ចូលអត្តលេខ...">
+                </div>
+            </div>
+            <button onclick="handleSearch()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                ស្វែងរកលទ្ធផលសិក្សា
+            </button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden text-center font-bold"></p>
+        </div>
+
+        <div id="loading" class="hidden text-center py-10">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <p class="mt-2 text-gray-500 font-bold italic">កំពុងទាញយកទិន្នន័យ...</p>
+        </div>
+
+        <div id="resultArea" class="hidden space-y-4">
+            <!-- Student Profile -->
+            <div class="grid grid-cols-2 gap-2 text-sm border-b pb-2 font-bold">
+                <p>គោត្តនាម-នាម៖ <span id="resName" class="text-blue-700"></span></p>
+                <p>ភេទ៖ <span id="resGender" class="text-blue-700"></span></p>
+                <p>ថ្ងៃខែឆ្នាំកំណើត៖ <span id="resDob" class="text-blue-700"></span></p>
+                <p>ថ្នាក់ទី៖ <span id="resGrade" class="text-blue-700"></span></p>
+            </div>
+
+            <!-- Table -->
+            <table class="w-full border-collapse border border-gray-400 text-xs">
+                <thead>
+                    <tr class="bg-blue-600 text-white">
+                        <th class="border border-gray-400 p-1">ល.រ</th>
+                        <th class="border border-gray-400 p-1 text-left">មុខវិជ្ជា</th>
+                        <th class="border border-gray-400 p-1">ពិន្ទុអតិបរមា</th>
+                        <th class="border border-gray-400 p-1">ពិន្ទុទទួលបាន</th>
+                        <th class="border border-gray-400 p-1">និទ្ទេស</th>
+                        <th class="border border-gray-400 p-1">ផ្សេងៗ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="text-center font-bold"></tbody>
+                <tfoot class="bg-gray-50 font-bold text-[10px]">
+                    <tr class="border border-gray-400">
+                        <td colspan="2" class="p-2 text-left">ពិន្ទុសរុប៖ <span id="totalScore" class="text-blue-700 text-sm"></span></td>
+                        <td colspan="2" class="p-2">មធ្យមភាគ៖ <span id="avgScore" class="text-green-700 text-sm"></span></td>
+                        <td colspan="2" class="p-2">ចំណាត់ថ្នាក់៖ <span id="resRank" class="text-red-600 text-sm"></span></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Chart Section -->
+            <div class="border border-gray-300 rounded-lg p-4 mt-4">
+                <h4 class="font-bold text-center mb-2 text-blue-900 underline text-xs">ក្រាហ្វិកវិភាគលទ្ធផលសិក្សាគិតជាភាគរយ (%)</h4>
+                <div class="bar-container border-l-2 border-b-2 border-gray-800 ml-10 mr-2">
+                    <div class="chart-grid-line" style="bottom: 100%;"> <span class="absolute -left-10 -bottom-2 text-[10px]">100%</span> </div>
+                    <div class="chart-grid-line" style="bottom: 75%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">75%</span> </div>
+                    <div class="chart-grid-line" style="bottom: 50%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">50%</span> </div>
+                    <div class="chart-grid-line" style="bottom: 25%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">25%</span> </div>
+                    <div class="chart-grid-line" style="bottom: 0%;">   <span class="absolute -left-10 -bottom-2 text-[10px]">0%</span> </div>
+                    <div id="chartBars" class="flex justify-around items-end w-full h-full px-1 gap-1 relative z-10"></div>
+                </div>
+            </div>
+
+            <!-- Footer Signs -->
+            <div class="grid grid-cols-2 gap-4 mt-6 text-[10px]">
+                <div class="italic border-l-2 border-green-500 pl-2">
+                    <p class="font-bold non-italic text-green-700">មូលវិចារគ្រូបន្ទុកថ្នាក់៖</p>
+                    <p>• ការសិក្សាល្អប្រសើរ សូមបន្តខិតខំប្រឹងប្រែង</p>
+                    <p>• យកចិត្តទុកដាក់រៀនសូត្របានល្អក្នុងម៉ោង</p>
+                    <div class="mt-10 text-center font-bold">បានឃើញ និងឯកភាព <br> នាយកសាលា</div>
+                </div>
+                <div class="text-right">
+                    <p>ថ្ងៃទី.......ខែ.......ឆ្នាំ២០២...</p>
+                    <p class="font-bold mr-10 mt-1">គ្រូបន្ទុកថ្នាក់</p>
+                    <div class="mt-12 text-center font-bold">ហត្ថលេខា និងឈ្មោះ</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 no-print pt-6">
+                <button onclick="window.print()" class="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold shadow-lg">បោះពុម្ព (PDF)</button>
+                <button onclick="location.reload()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-bold">ត្រឡប់ក្រោយ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFPtedM9eipgrruv5LI2hk_9vDnerUvTXKyXRTjB2sdhv9lotopjtpWyfKANyOBQIs4A/exec";
+
+        // និយមន័យមុខវិជ្ជា និង Key នៅក្នុង Spreadsheet
+        const SUB_MAP = [
+            { n: "ភាសាខ្មែរ", k: "Khmer" }, { n: "សីលធម៌", k: "Civic" },
+            { n: "ប្រវត្តិវិទ្យា", k: "History" }, { n: "ភូមិវិទ្យា", k: "Geography" },
+            { n: "គណិតវិទ្យា", k: "Math" }, { n: "រូបវិទ្យា", k: "Physics" },
+            { n: "គីមីវិទ្យា", k: "Chemistry" }, { n: "ជីវវិទ្យា", k: "Biology" },
+            { n: "ផែនដីវិទ្យា", k: "Earth" }, { n: "អង់គ្លេស", k: "English" },
+            { n: "អប់រំកាយ", k: "Sport" }, { n: "កសិកម្ម", k: "Agriculture" },
+            { n: "កុំព្យូទ័រ", k: "Computer" }, { n: "បំណិន", k: "LifeSkill" },
+            { n: "សុខភាព", k: "Health" }
+        ];
+
+        async function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const month = document.getElementById('monthSelect').value;
+            if (!query) return;
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('headerMonth').innerText = month;
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                const student = data.find(s => s.ID?.toString() === query || s.Name?.includes(query));
+
+                if (student) {
+                    renderData(student);
+                    document.getElementById('resultArea').classList.remove('hidden');
+                } else {
+                    alert("រកមិនឃើញទិន្នន័យសិស្សឡើយ!");
+                }
+            } catch (e) {
+                alert("មានបញ្ហាក្នុងការទាញទិន្នន័យ!");
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function renderData(s) {
+            document.getElementById('resName').innerText = s.Name || '-';
+            document.getElementById('resGender').innerText = s.Gender || '-';
+            document.getElementById('resGrade').innerText = s.Grade || '-';
+            document.getElementById('resDob').innerText = s.DOB ? new Date(s.DOB).toLocaleDateString('km-KH') : '-';
+            document.getElementById('totalScore').innerText = s.Total || 0;
+            document.getElementById('avgScore').innerText = s.Average || 0;
+            document.getElementById('resRank').innerText = s.Rank || '-';
+
+            let tableHtml = "";
+            let chartHtml = "";
+
+            SUB_MAP.forEach((sub, i) => {
+                const score = parseFloat(s[sub.k]) || 0;
+                
+                // បច្ចេកទេសស្វែងរក Max Score៖ ប្រសិនបើក្នុង Sheet មាន Column ឈ្មោះ 'Math_Max' វានឹងយកតាមហ្នឹង
+                // បើគ្មានទេ វានឹងស្មានតាមទំហំពិន្ទុ (បើពិន្ទុ > 50 ភាគច្រើន Max គឺ 150 ឬ 100)
+                let max = s[sub.k + "_Max"] || (score > 50 ? 150 : 50);
+                if (sub.k === "English" && !s[sub.k + "_Max"]) max = 100;
+                
+                const perc = Math.min((score / max) * 100, 100);
+                const grade = perc >= 90 ? 'A' : perc >= 80 ? 'B' : perc >= 70 ? 'C' : perc >= 60 ? 'D' : perc >= 50 ? 'E' : 'F';
+
+                tableHtml += `
+                    <tr class="border border-gray-400">
+                        <td class="p-1 font-normal text-gray-400">${i+1}</td>
+                        <td class="p-1 text-left">${sub.n}</td>
+                        <td class="p-1">${max}</td>
+                        <td class="p-1 ${score < max/2 ? 'text-red-600' : 'text-blue-700'}">${score}</td>
+                        <td class="p-1">${grade}</td>
+                        <td class="p-1"></td>
+                    </tr>
+                `;
+
+                // Chart Bars
+                const color = perc < 50 ? 'bg-orange-500' : 'bg-blue-500';
+                chartHtml += `
+                    <div class="flex-1 flex flex-col items-center group relative h-full">
+                        <div class="text-[8px] font-bold mb-1">${Math.round(perc)}%</div>
+                        <div class="w-full ${color} bar-fill rounded-t-sm transition-all duration-1000" style="height: ${perc}%"></div>
+                        <div class="absolute -bottom-12 rotated-text text-[7px] font-bold w-4">${sub.n}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('tableBody').innerHTML = tableHtml;
+            document.getElementById('chartBars').innerHTML = chartHtml;
+        }
+    </script>
+</body>
+</html>
