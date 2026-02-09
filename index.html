@@ -3,243 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធពិនិត្យលទ្ធផលសិក្សា - វិទ្យាល័យហ៊ុនសែនកំពង់ត្រឡាច</title>
+    <title>ប្រព័ន្ធពិនិត្យលទ្ធផលសិក្សា - វិទ្យាល័យ ហ៊ុន សែន កំពង់ត្រឡាច</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&family=Moul&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; }
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; margin: 0; }
-            .print-container { width: 100%; box-shadow: none !important; border: none !important; padding: 0 !important; }
-            .bg-blue-600 { background-color: #2563eb !important; -webkit-print-color-adjust: exact; }
-            .text-white { color: white !important; -webkit-print-color-adjust: exact; }
-            .bar-fill { -webkit-print-color-adjust: exact; }
+        :root {
+            --primary-blue: #1e40af;
+            --khmer-red: #dc2626;
         }
-        .chart-grid-line {
-            border-bottom: 1px dashed #ccc;
-            position: absolute;
-            left: 0;
-            right: 0;
-            width: 100%;
+        body { 
+            font-family: 'Kantumruy Pro', sans-serif; 
+            background: #f1f5f9;
+            color: #1e293b;
         }
-        .bar-container {
-            height: 200px;
-            display: flex;
-            align-items: flex-end;
+        .moul-font { font-family: 'Moul', serif; }
+        .print-area {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 12mm 15mm;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             position: relative;
-            padding-top: 20px;
         }
-        .rotated-text {
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            white-space: nowrap;
+        
+        .sketch-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            margin: 20px 0;
+            padding: 12px 0;
+            background: #ffffff;
+        }
+        .sketch-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .sketch-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 10%;
+            height: 80%;
+            width: 1px;
+            background-color: #e2e8f0;
+        }
+        .sketch-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .sketch-value {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #cbd5e1; padding: 6px 4px; text-align: center; font-size: 12px; }
+        th { background-color: #f8fafc; color: var(--primary-blue); font-weight: 700; height: 35px; }
+        .subject-col { text-align: left; padding-left: 10px; font-weight: bold; font-size: 13px; width: 140px; }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .grade-A { color: #059669; }
+        .grade-B { color: #2563eb; }
+        .grade-C { color: #d97706; }
+        .grade-D { color: #7c3aed; }
+        .grade-E { color: #db2777; }
+        .grade-F { color: #dc2626; }
+
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .print-area { box-shadow: none; margin: 0; padding: 10mm; width: 100%; }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-2 md:p-6">
+<body>
 
-    <div id="app" class="max-w-4xl mx-auto print-container bg-white p-4 md:p-8 rounded-xl shadow-sm">
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-xl font-bold text-blue-900">ព្រះរាជាណាចក្រកម្ពុជា</h1>
-            <h2 class="text-lg font-bold text-blue-900">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
-            <div class="flex justify-center my-1">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Royal_arms_of_Cambodia.svg/150px-Royal_arms_of_Cambodia.svg.png" alt="Royal Arms" class="h-16">
-            </div>
-            <div class="mt-2 text-blue-800 font-semibold text-sm">
-                <p>មន្ទីរអប់រំ យុវជន និងកីឡា ខេត្តកំពង់ឆ្នាំង</p>
-                <p>ការិយាល័យអប់រំ យុវជន និងកីឡា ស្រុកកំពង់ត្រឡាច</p>
-                <p class="font-bold">វិទ្យាល័យហ៊ុនសែនកំពង់ត្រឡាច</p>
-            </div>
-            <h2 class="mt-4 text-xl font-bold text-red-600 underline decoration-double">តារាងលទ្ធផលសិក្សារបស់សិស្សប្រចាំខែ <span id="headerMonth">...</span></h2>
+    <!-- Search Section (Home Page Header) -->
+    <div class="max-w-4xl mx-auto my-6 no-print px-4">
+        <div class="text-center mb-6 space-y-2">
+            <h2 class="moul-font text-blue-800 text-lg">វិទ្យាល័យ ហ៊ុន សែន កំពង់ត្រឡាច</h2>
+            <p class="font-bold text-gray-500">ប្រព័ន្ធត្រួតពិនិត្យលទ្ធផលសិក្សាសិស្ស</p>
         </div>
-
-        <!-- Search Box -->
-        <div class="max-w-2xl mx-auto mb-8 no-print bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">ជ្រើសរើសខែ៖</label>
-                    <select id="monthSelect" class="w-full px-4 py-3 rounded-xl border border-gray-300 font-bold outline-none">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-blue-600">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500">ជ្រើសរើសខែ/ឆមាស</label>
+                    <select id="monthSelect" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none font-bold text-sm">
                         <option value="មករា">មករា</option><option value="កុម្ភៈ">កុម្ភៈ</option><option value="មីនា">មីនា</option>
                         <option value="មេសា">មេសា</option><option value="ឧសភា">ឧសភា</option><option value="មិថុនា">មិថុនា</option>
-                        <option value="កក្កដា">កក្កដា</option><option value="សីហា">សីហា</option><option value="កញ្ញា">កញ្ញា</option>
-                        <option value="តុលា">តុលា</option><option value="វិច្ឆិកា">វិច្ឆិកា</option><option value="ធ្នូ">ធ្នូ</option>
-                        <option value="ឆមាសទី១">ឆមាសទី១</option><option value="ឆមាសទី២">ឆមាសទី២</option>
+                        <option value="ប្រឡងឆមាសទី១">ប្រឡងឆមាសទី១</option><option value="ប្រឡងឆមាសទី២">ប្រឡងឆមាសទី២</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">អត្តលេខ ឬឈ្មោះសិស្ស៖</label>
-                    <input type="text" id="searchInput" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500" placeholder="បញ្ចូលអត្តលេខ...">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500">បញ្ចូលឈ្មោះ ឬ អត្តលេខ</label>
+                    <input type="text" id="searchInput" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none font-bold text-sm" placeholder="ស្វែងរកទីនេះ...">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="handleSearch()" id="searchBtn" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <span>ឆែកមើលលទ្ធផល</span>
+                        <div id="loader" class="hidden animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    </button>
                 </div>
             </div>
-            <button onclick="handleSearch()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                ស្វែងរកលទ្ធផលសិក្សា
-            </button>
-            <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden text-center font-bold"></p>
+        </div>
+        
+        <div class="mt-8 text-center text-xs text-gray-400 font-bold tracking-widest">
+            រក្សាសិទ្ធិគ្រប់យ៉ាង ២០២៦
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="capture-area" class="print-area hidden">
+        
+        <!-- Header -->
+        <div class="text-center space-y-1">
+            <h2 class="moul-font text-[13px] text-blue-900">ព្រះរាជាណាចក្រកម្ពុជា</h2>
+            <h2 class="moul-font text-[13px] text-blue-900">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
+            <div class="flex justify-center items-center gap-1 opacity-30 mt-1">
+                <div class="w-2 h-2 rounded-full bg-blue-900"></div>
+                <div class="w-16 h-[1px] bg-blue-900"></div>
+                <div class="w-2 h-2 rounded-full bg-blue-900"></div>
+            </div>
         </div>
 
-        <div id="loading" class="hidden text-center py-10">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-            <p class="mt-2 text-gray-500 font-bold italic">កំពុងទាញយកទិន្នន័យ...</p>
+        <div class="mt-2 text-[11px] font-bold text-blue-900 leading-tight">
+            <p>មន្ទីរអប់រំ យុវជន និងកីឡា ខេត្តកំពង់ឆ្នាំង</p>
+            <p>ការិយាល័យអប់រំ យុវជន និងកីឡា ស្រុកកំពង់ត្រឡាច</p>
+            <p>វិទ្យាល័យ ហ៊ុន សែន កំពង់ត្រឡាច</p>
         </div>
 
-        <div id="resultArea" class="hidden space-y-4">
-            <!-- Student Profile -->
-            <div class="grid grid-cols-2 gap-2 text-sm border-b pb-2 font-bold">
-                <p>គោត្តនាម-នាម៖ <span id="resName" class="text-blue-700"></span></p>
-                <p>ភេទ៖ <span id="resGender" class="text-blue-700"></span></p>
-                <p>ថ្ងៃខែឆ្នាំកំណើត៖ <span id="resDob" class="text-blue-700"></span></p>
-                <p>ថ្នាក់ទី៖ <span id="resGrade" class="text-blue-700"></span></p>
-            </div>
+        <h1 class="moul-font text-red-600 text-center text-xl mt-6 mb-4">តារាងលទ្ធផលសិក្សារបស់សិស្សប្រចាំ <span id="resMonth">...</span></h1>
 
-            <!-- Table -->
-            <table class="w-full border-collapse border border-gray-400 text-xs">
-                <thead>
-                    <tr class="bg-blue-600 text-white">
-                        <th class="border border-gray-400 p-1">ល.រ</th>
-                        <th class="border border-gray-400 p-1 text-left">មុខវិជ្ជា</th>
-                        <th class="border border-gray-400 p-1">ពិន្ទុអតិបរមា</th>
-                        <th class="border border-gray-400 p-1">ពិន្ទុទទួលបាន</th>
-                        <th class="border border-gray-400 p-1">និទ្ទេស</th>
-                        <th class="border border-gray-400 p-1">ផ្សេងៗ</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="text-center font-bold"></tbody>
-                <tfoot class="bg-gray-50 font-bold text-[10px]">
-                    <tr class="border border-gray-400">
-                        <td colspan="2" class="p-2 text-left">ពិន្ទុសរុប៖ <span id="totalScore" class="text-blue-700 text-sm"></span></td>
-                        <td colspan="2" class="p-2">មធ្យមភាគ៖ <span id="avgScore" class="text-green-700 text-sm"></span></td>
-                        <td colspan="2" class="p-2">ចំណាត់ថ្នាក់៖ <span id="resRank" class="text-red-600 text-sm"></span></td>
-                    </tr>
-                </tfoot>
-            </table>
+        <!-- Student Basic Info -->
+        <div class="grid grid-cols-2 gap-y-2 text-[13px] font-bold mt-2 px-4 border-l-4 border-blue-600 py-1">
+            <p>គោត្តនាម-នាម ៖ <span id="resName" class="text-blue-800 moul-font ml-2">...</span></p>
+            <p>ភេទ ៖ <span id="resGender" class="text-blue-800 ml-2">...</span></p>
+            <p>ថ្ងៃខែឆ្នាំកំណើត ៖ <span id="resDOB" class="text-blue-800 ml-2">...</span></p>
+            <p>ថ្នាក់ទី ៖ <span id="resGrade" class="text-blue-800 ml-2">...</span></p>
+            <p>អត្តលេខ ៖ <span id="resId" class="text-blue-800 ml-2">...</span></p>
+            <p>ឆ្នាំសិក្សា ៖ <span class="text-blue-800 ml-2">២០២៥-២០២៦</span></p>
+        </div>
 
-            <!-- Chart Section -->
-            <div class="border border-gray-300 rounded-lg p-4 mt-4">
-                <h4 class="font-bold text-center mb-2 text-blue-900 underline text-xs">ក្រាហ្វិកវិភាគលទ្ធផលសិក្សាគិតជាភាគរយ (%)</h4>
-                <div class="bar-container border-l-2 border-b-2 border-gray-800 ml-10 mr-2">
-                    <div class="chart-grid-line" style="bottom: 100%;"> <span class="absolute -left-10 -bottom-2 text-[10px]">100%</span> </div>
-                    <div class="chart-grid-line" style="bottom: 75%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">75%</span> </div>
-                    <div class="chart-grid-line" style="bottom: 50%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">50%</span> </div>
-                    <div class="chart-grid-line" style="bottom: 25%;">  <span class="absolute -left-10 -bottom-2 text-[10px]">25%</span> </div>
-                    <div class="chart-grid-line" style="bottom: 0%;">   <span class="absolute -left-10 -bottom-2 text-[10px]">0%</span> </div>
-                    <div id="chartBars" class="flex justify-around items-end w-full h-full px-1 gap-1 relative z-10"></div>
-                </div>
+        <!-- Summary Statistics -->
+        <div class="sketch-summary shadow-sm">
+            <div class="sketch-item">
+                <p class="sketch-label">មធ្យមភាគ</p>
+                <p id="avgScore" class="sketch-value text-blue-600">0.00</p>
             </div>
+            <div class="sketch-item">
+                <p class="sketch-label">ចំណាត់ថ្នាក់</p>
+                <p id="rank" class="sketch-value text-red-500">0</p>
+            </div>
+            <div class="sketch-item">
+                <p class="sketch-label">និទ្ទេសរួម</p>
+                <p id="gradeResult" class="sketch-value text-emerald-500">-</p>
+            </div>
+        </div>
 
-            <!-- Footer Signs -->
-            <div class="grid grid-cols-2 gap-4 mt-6 text-[10px]">
-                <div class="italic border-l-2 border-green-500 pl-2">
-                    <p class="font-bold non-italic text-green-700">មូលវិចារគ្រូបន្ទុកថ្នាក់៖</p>
-                    <p>• ការសិក្សាល្អប្រសើរ សូមបន្តខិតខំប្រឹងប្រែង</p>
-                    <p>• យកចិត្តទុកដាក់រៀនសូត្របានល្អក្នុងម៉ោង</p>
-                    <div class="mt-10 text-center font-bold">បានឃើញ និងឯកភាព <br> នាយកសាលា</div>
-                </div>
-                <div class="text-right">
-                    <p>ថ្ងៃទី.......ខែ.......ឆ្នាំ២០២...</p>
-                    <p class="font-bold mr-10 mt-1">គ្រូបន្ទុកថ្នាក់</p>
-                    <div class="mt-12 text-center font-bold">ហត្ថលេខា និងឈ្មោះ</div>
-                </div>
-            </div>
+        <!-- Scores Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th class="w-10">ល.រ</th>
+                    <th>មុខវិជ្ជា</th>
+                    <th class="w-24">ពិន្ទុអតិបរមា</th>
+                    <th class="w-24">ពិន្ទុទទួលបាន</th>
+                    <th class="w-40">ក្រាបវិភាគ (%)</th>
+                    <th class="w-16">និទ្ទេស</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody" class="font-bold"></tbody>
+            <tfoot>
+                <tr class="bg-blue-50/50">
+                    <td colspan="2" class="subject-col text-blue-900 uppercase">ពិន្ទុសរុប</td>
+                    <td id="totalMax" class="font-black text-center text-gray-500">0</td>
+                    <td id="totalScore" class="font-black text-center text-blue-700">0</td>
+                    <td colspan="2" class="text-right pr-4 text-[11px] text-gray-400 italic">សមិទ្ធផលសិក្សាគិតជាភាគរយ</td>
+                </tr>
+            </tfoot>
+        </table>
 
-            <!-- Actions -->
-            <div class="flex gap-4 no-print pt-6">
-                <button onclick="window.print()" class="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold shadow-lg">បោះពុម្ព (PDF)</button>
-                <button onclick="location.reload()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-bold">ត្រឡប់ក្រោយ</button>
+        <!-- Signature Section -->
+        <div class="mt-8 flex justify-between items-start px-4">
+            <div class="text-center">
+                <p class="font-bold text-[11px]">បានឃើញ និងឯកភាព</p>
+                <p class="moul-font text-[11px] text-blue-900 mt-1">នាយកសាលា</p>
+                <div class="h-24"></div>
             </div>
+            <div class="text-center">
+                <p id="footerDate" class="text-[10px] text-gray-600">...</p>
+                <p id="footerLunar" class="text-[10px] text-gray-500 mb-1">...</p>
+                <p class="moul-font text-[11px] text-blue-900 mt-1">គ្រូបន្ទុកថ្នាក់</p>
+                <div class="h-24"></div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-10 text-[9px] text-gray-300 font-bold uppercase tracking-widest pb-4">
+            រក្សាសិទ្ធិគ្រប់យ៉ាង ២០២៦
+        </div>
+
+        <!-- Bottom Action Buttons -->
+        <div class="no-print mt-8 flex justify-center gap-4 border-t pt-8">
+            <button onclick="downloadPDF()" class="bg-emerald-600 text-white px-10 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-all">ទាញយក PDF</button>
+            <button onclick="window.print()" class="bg-slate-800 text-white px-10 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-all">បោះពុម្ព</button>
         </div>
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFPtedM9eipgrruv5LI2hk_9vDnerUvTXKyXRTjB2sdhv9lotopjtpWyfKANyOBQIs4A/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzMiOl5k5jpcuA2VjXUKeSMBZXY22jvTkUGcoimQfq-Ydvc7nT2JaskZ6UKnFu3H0I6Rg/exec";
+        const SUBJECTS = ["ភាសាខ្មែរ", "សីលធម៌ពលរដ្ឋ", "ប្រវត្តិវិទ្យា", "ភូមិវិទ្យា", "គណិតវិទ្យា", "រូបវិទ្យា", "គីមីវិទ្យា", "ជីវវិទ្យា", "ផែនដីវិទ្យា", "ភាសាអង់គ្លេស", "កីឡា", "កសិកម្ម", "បច្ចេកវិទ្យា", "បំណិន", "សុខភាព"];
 
-        // និយមន័យមុខវិជ្ជា និង Key នៅក្នុង Spreadsheet
-        const SUB_MAP = [
-            { n: "ភាសាខ្មែរ", k: "Khmer" }, { n: "សីលធម៌", k: "Civic" },
-            { n: "ប្រវត្តិវិទ្យា", k: "History" }, { n: "ភូមិវិទ្យា", k: "Geography" },
-            { n: "គណិតវិទ្យា", k: "Math" }, { n: "រូបវិទ្យា", k: "Physics" },
-            { n: "គីមីវិទ្យា", k: "Chemistry" }, { n: "ជីវវិទ្យា", k: "Biology" },
-            { n: "ផែនដីវិទ្យា", k: "Earth" }, { n: "អង់គ្លេស", k: "English" },
-            { n: "អប់រំកាយ", k: "Sport" }, { n: "កសិកម្ម", k: "Agriculture" },
-            { n: "កុំព្យូទ័រ", k: "Computer" }, { n: "បំណិន", k: "LifeSkill" },
-            { n: "សុខភាព", k: "Health" }
-        ];
+        function getGrade(percent) {
+            if (percent >= 90) return "A";
+            if (percent >= 80) return "B";
+            if (percent >= 70) return "C";
+            if (percent >= 60) return "D";
+            if (percent >= 50) return "E";
+            return "F";
+        }
+
+        function getBarColor(percent) {
+            if (percent >= 80) return "#10b981"; 
+            if (percent >= 60) return "#3b82f6"; 
+            if (percent >= 50) return "#f59e0b"; 
+            return "#ef4444"; 
+        }
 
         async function handleSearch() {
-            const query = document.getElementById('searchInput').value.trim();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const month = document.getElementById('monthSelect').value;
             if (!query) return;
 
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('resultArea').classList.add('hidden');
-            document.getElementById('headerMonth').innerText = month;
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('searchBtn').disabled = true;
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                const data = await response.json();
-                const student = data.find(s => s.ID?.toString() === query || s.Name?.includes(query));
+                const [dataRes, configRes] = await Promise.all([
+                    fetch(`${API_URL}?month=${encodeURIComponent(month)}`),
+                    fetch(`${API_URL}?month=Config_MaxScores`)
+                ]);
+                
+                const data = await dataRes.json();
+                const config = await configRes.json();
+                const s = data.find(i => i.ID?.toString().toLowerCase() === query || i.Name?.toString().toLowerCase().includes(query));
 
-                if (student) {
-                    renderData(student);
-                    document.getElementById('resultArea').classList.remove('hidden');
+                if (s) {
+                    const gradeConfig = config.find(c => c["កម្រិតថ្នាក់"]?.toString().trim() === s.Grade?.toString().trim());
+                    
+                    document.getElementById('resName').innerText = s.Name;
+                    document.getElementById('resId').innerText = s.ID;
+                    document.getElementById('resGrade').innerText = s.Grade;
+                    document.getElementById('resGender').innerText = s.Gender || '...';
+                    document.getElementById('resDOB').innerText = s.DOB || '...';
+                    document.getElementById('resMonth').innerText = month;
+                    document.getElementById('totalScore').innerText = s.Total;
+                    document.getElementById('avgScore').innerText = s.Average;
+                    document.getElementById('rank').innerText = s.Rank;
+                    document.getElementById('gradeResult').innerText = s.Grade_Result;
+                    document.getElementById('footerDate').innerText = s.DateSolar || '';
+                    document.getElementById('footerLunar').innerText = s.DateLunar || '';
+
+                    let tableHtml = "";
+                    let totalMax = 0;
+
+                    SUBJECTS.forEach((sub, idx) => {
+                        const score = parseFloat(s[sub]);
+                        const max = gradeConfig ? parseFloat(gradeConfig[sub]) : 50;
+                        if (!isNaN(score)) {
+                            totalMax += max;
+                            const percent = Math.min((score / max) * 100, 100);
+                            const grade = getGrade(percent);
+                            const barColor = getBarColor(percent);
+                            
+                            tableHtml += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="text-gray-400 font-normal">${idx + 1}</td>
+                                    <td class="subject-col">${sub}</td>
+                                    <td class="text-gray-400">${max}</td>
+                                    <td class="text-blue-700">${score}</td>
+                                    <td class="px-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="progress-container">
+                                                <div class="progress-bar" style="width: ${percent}%; background-color: ${barColor};"></div>
+                                            </div>
+                                            <span class="text-[9px] w-8 text-left text-gray-500">${Math.round(percent)}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="grade-${grade}">${grade}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+
+                    document.getElementById('tableBody').innerHTML = tableHtml;
+                    document.getElementById('totalMax').innerText = totalMax;
+                    document.getElementById('capture-area').classList.remove('hidden');
                 } else {
-                    alert("រកមិនឃើញទិន្នន័យសិស្សឡើយ!");
+                    alert("រកមិនឃើញទិន្នន័យ!");
                 }
             } catch (e) {
-                alert("មានបញ្ហាក្នុងការទាញទិន្នន័យ!");
+                alert("មានបញ្ហាភ្ជាប់ទៅកាន់ Server!");
             } finally {
-                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
             }
         }
 
-        function renderData(s) {
-            document.getElementById('resName').innerText = s.Name || '-';
-            document.getElementById('resGender').innerText = s.Gender || '-';
-            document.getElementById('resGrade').innerText = s.Grade || '-';
-            document.getElementById('resDob').innerText = s.DOB ? new Date(s.DOB).toLocaleDateString('km-KH') : '-';
-            document.getElementById('totalScore').innerText = s.Total || 0;
-            document.getElementById('avgScore').innerText = s.Average || 0;
-            document.getElementById('resRank').innerText = s.Rank || '-';
-
-            let tableHtml = "";
-            let chartHtml = "";
-
-            SUB_MAP.forEach((sub, i) => {
-                const score = parseFloat(s[sub.k]) || 0;
-                
-                // បច្ចេកទេសស្វែងរក Max Score៖ ប្រសិនបើក្នុង Sheet មាន Column ឈ្មោះ 'Math_Max' វានឹងយកតាមហ្នឹង
-                // បើគ្មានទេ វានឹងស្មានតាមទំហំពិន្ទុ (បើពិន្ទុ > 50 ភាគច្រើន Max គឺ 150 ឬ 100)
-                let max = s[sub.k + "_Max"] || (score > 50 ? 150 : 50);
-                if (sub.k === "English" && !s[sub.k + "_Max"]) max = 100;
-                
-                const perc = Math.min((score / max) * 100, 100);
-                const grade = perc >= 90 ? 'A' : perc >= 80 ? 'B' : perc >= 70 ? 'C' : perc >= 60 ? 'D' : perc >= 50 ? 'E' : 'F';
-
-                tableHtml += `
-                    <tr class="border border-gray-400">
-                        <td class="p-1 font-normal text-gray-400">${i+1}</td>
-                        <td class="p-1 text-left">${sub.n}</td>
-                        <td class="p-1">${max}</td>
-                        <td class="p-1 ${score < max/2 ? 'text-red-600' : 'text-blue-700'}">${score}</td>
-                        <td class="p-1">${grade}</td>
-                        <td class="p-1"></td>
-                    </tr>
-                `;
-
-                // Chart Bars
-                const color = perc < 50 ? 'bg-orange-500' : 'bg-blue-500';
-                chartHtml += `
-                    <div class="flex-1 flex flex-col items-center group relative h-full">
-                        <div class="text-[8px] font-bold mb-1">${Math.round(perc)}%</div>
-                        <div class="w-full ${color} bar-fill rounded-t-sm transition-all duration-1000" style="height: ${perc}%"></div>
-                        <div class="absolute -bottom-12 rotated-text text-[7px] font-bold w-4">${sub.n}</div>
-                    </div>
-                `;
-            });
-
-            document.getElementById('tableBody').innerHTML = tableHtml;
-            document.getElementById('chartBars').innerHTML = chartHtml;
+        function downloadPDF() {
+            const element = document.getElementById('capture-area');
+            const name = document.getElementById('resName').innerText;
+            const opt = {
+                margin: 0,
+                filename: `Result_${name}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>
